@@ -1,0 +1,6 @@
+[submodule "src/errors"]
+	path = src/errors
+	url = https://github.com/TheCount/errors
+[submodule "src/tinycthread"]
+	path = src/tinycthread
+	url = https://github.com/tinycthread/tinycthread.git
