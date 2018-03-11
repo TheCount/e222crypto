@@ -1,4 +1,5 @@
 #include<openssl/err.h>
+#include<openssl/evp.h>
 
 #include"errors/errors.h"
 
