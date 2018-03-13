@@ -10,6 +10,10 @@ set( E222CRYPTO_LIB_SOURCES
 )
 set( E222CRYPTO_LIB_LINK
 	${CRYPTO_LIBRARIES}
+	tinycthread
+)
+include_directories(
+	${CMAKE_CURRENT_SOURCE_DIR}
 )
 link_directories(
 	${CRYPTO_LIBRARY_DIRS}
@@ -21,3 +25,5 @@ set_target_properties( e222crypto PROPERTIES VERSION ${LIBE222CRYPTO_VERSION} SO
 add_library( e222crypto_static STATIC ${E222CRYPTO_LIB_SOURCES} )
 target_link_libraries( e222crypto_static ${E222CRYPTO_LIB_LINK} )
 set_target_properties( e222crypto_static PROPERTIES OUTPUT_NAME ${E222CRYPTO_LIB_STATIC} )
+
+add_subdirectory( tinycthread )
