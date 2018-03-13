@@ -1,4 +1,4 @@
-cmake_minimum_required( VERSION 3.0 )
+cmake_minimum_required( VERSION 3.1 )
 project( e222crypto )
 enable_testing()
 
@@ -15,6 +15,9 @@ set( LIBE222CRYPTO_VERSION "${LIBE222CRYPTO_SOVERSION}.${LIBE222CRYPTO_MINOR}.${
 # Dependencies
 find_package( PkgConfig REQUIRED )
 pkg_search_module( CRYPTO REQUIRED libcrypto )
+
+# Compiler settings
+set( CMAKE_C_STANDARD 11 )
 
 # Build subdirs
 add_subdirectory( src )
