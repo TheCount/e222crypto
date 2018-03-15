@@ -1,3 +1,4 @@
+#include<stdatomic.h>
 #include<thread.h>
 
 /**
@@ -6,19 +7,21 @@
  */
 struct CRYPTO_dynlock_value {
 	/**
+	 * Entry lock, ensures the order of threads entering the
+	 * critical section protected by this lock is detrmined
+	 * by the operating system.
+	 */
+	mtx_t entryLock;
+
+	/**
 	 * Lock acquired by writers and the first reader.
 	 */
 	mtx_t writerLock;
 
 	/**
-	 * Lock protecting #numReaders.
-	 */
-	mtx_t readerLock;
-
-	/**
 	 * Current number of readers.
 	 */
-	unsigned int numReaders;
+	atomic_uint numReaders;
 };
 
 #include<openssl/crypto.h>
