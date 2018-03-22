@@ -22,7 +22,7 @@ nothreads:
 }
 
 void e222crypto_fini( void ) {
-	e222crypto_threads_fini();
 	EVP_cleanup();
 	ERR_free_strings();
+	e222crypto_threads_fini();
 }
