@@ -48,6 +48,46 @@ static void threadid_func( CRYPTO_THREADID * dest ) {
 }
 
 /**
+ * Initialises a dynamic lock.
+ *
+ * @param lock Pointer to allocated, uninitialised dynamic lock.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to the error is returned.
+ */
+static Error * dynlock_init( struct CRYPTO_dynlock_value * lock ) {
+	Error * e = NULL;
+
+	/* Sanity check */
+	if ( lock == NULL ) {
+		e = error_newc( "Null lock passed" );
+		goto badlock;
+	}
+
+	/* Init lock */
+	int rc = mtx_init( &lock->entryLock, mtx_plain );
+	if ( rc != thrd_success ) {
+		e = error_newc( "Unable to initialise entry lock" );
+		goto noelock;
+	}
+	rc = mtx_init( &lock->writerLock, mtx_plain );
+	if ( rc != thrd_success ) {
+		e = error_newc( "Unable to initialise writer lock" );
+		goto nowlock;
+	}
+	lock->numReaders = ATOMIC_VAR_INIT( 0 );
+
+	return NULL;
+
+	mtx_destroy( &lock->writerLock );
+nowlock:
+	mtx_destroy( &lock->entryLock );
+noelock:
+badlock:
+	return e;
+}
+
+/**
  * Creates a dynamic lock.
  *
  * @param file Caller source file name.
@@ -61,25 +101,34 @@ static struct CRYPTO_dynlock_value * dynlock_create( const char * file, int line
 	if ( result == NULL ) {
 		goto nodynlock;
 	}
-	int rc = mtx_init( &result->entryLock, mtx_plain );
-	if ( rc != thrd_success ) {
-		goto noelock;
+	Error * e = dynlock_init( result );
+	if ( e != NULL ) {
+		error_del( e );
+		goto noinit;
 	}
-	rc = mtx_init( &result->writerLock, mtx_plain );
-	if ( rc != thrd_success ) {
-		goto nowlock;
-	}
-	result->numReaders = ATOMIC_VAR_INIT( 0 );
 
 	return result;
 
-	mtx_destroy( &result->writerLock );
-nowlock:
-	mtx_destroy( &result->entryLock );
-noelock:
+noinit:
 	free( result );
 nodynlock:
 	return NULL;
+}
+
+/**
+ * Uninitialises a dynamic lock.
+ *
+ * @param lock Pointer to dynamic lock.
+ */
+static void dynlock_fini( struct CRYPTO_dynlock_value * lock ) {
+	/* Sanity check */
+	if ( lock == NULL ) {
+		return;
+	}
+
+	/* Uninit */
+	mtx_destroy( &lock->writerLock );
+	mtx_destroy( &lock->entryLock );
 }
 
 /**
@@ -90,8 +139,7 @@ nodynlock:
  * @param line Caller source file line number.
  */
 static void dynlock_destroy( struct CRYPTO_dynlock_value * lock, const char * file, int line ) {
-	mtx_destroy( &lock->writerLock );
-	mtx_destroy( &lock->entryLock );
+	dynlock_fini( lock );
 	free( lock );
 }
 
