@@ -47,6 +47,15 @@ static void threadid_func( CRYPTO_THREADID * dest ) {
 	CRYPTO_THREADID_set_pointer( dest, &threadLocalDummy );
 }
 
+/**
+ * Creates a dynamic lock.
+ *
+ * @param file Caller source file name.
+ * @param line Caller source file line number.
+ *
+ * @return On success, a pointer to a new dynamic lock is returned.\n
+ * 	On error, a null pointer is returned.
+ */
 static struct CRYPTO_dynlock_value * dynlock_create( const char * file, int line ) {
 	struct CRYPTO_dynlock_value * result = malloc( sizeof( *result ) );
 	if ( result == NULL ) {
@@ -73,12 +82,27 @@ nodynlock:
 	return NULL;
 }
 
+/**
+ * Destroys a dynamic lock.
+ *
+ * @param lock Pointer to dynamic lock.
+ * @param file Caller source file name.
+ * @param line Caller source file line number.
+ */
 static void dynlock_destroy( struct CRYPTO_dynlock_value * lock, const char * file, int line ) {
 	mtx_destroy( &lock->writerLock );
 	mtx_destroy( &lock->entryLock );
 	free( lock );
 }
 
+/**
+ * Alters the state of a dynamic lock.
+ *
+ * @param mode New state. See threads(3ssl) for specifics.
+ * @param lock Pointer to dynamic lock.
+ * @param file Caller source file name.
+ * @param line Caller source file line number.
+ */
 static void dynlock_lock( int mode, struct CRYPTO_dynlock_value * lock, const char * file, int line ) {
 	if ( mode & CRYPTO_LOCK ) {
 		mtx_lock( &lock->entryLock );
