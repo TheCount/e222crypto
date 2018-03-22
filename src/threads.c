@@ -93,8 +93,9 @@ static void dynlock_lock( int mode, struct CRYPTO_dynlock_value * lock, const ch
 		mtx_unlock( &lock->entryLock );
 	} else {
 		if ( mode & CRYPTO_READ ) {
-			unsigned int old = atomic_fetch_sub_explicit( &lock->numReaders, 1, memory_order_relaxed );
+			unsigned int old = atomic_fetch_sub_explicit( &lock->numReaders, 1, memory_order_release );
 			if ( old == 1 ) {
+				atomic_thread_fence( memory_order_acquire );
 				mtx_unlock( &lock->writerLock );
 			}
 		} else {
