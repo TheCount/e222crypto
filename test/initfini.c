@@ -8,4 +8,7 @@ int main( void ) {
 	Error * e = e222crypto_init();
 	assert( e == NULL );
 	e222crypto_fini();
+	e = e222crypto_init();
+	assert( e != NULL );
+	error_del( e );
 }
