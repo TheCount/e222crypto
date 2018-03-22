@@ -138,6 +138,11 @@ Error * e222crypto_threads_init( void ) {
 		goto nothreadid;
 	}
 
+	/* Set dynamic lock callbacks */
+	CRYPTO_set_dynlock_create_callback( dynlock_create );
+	CRYPTO_set_dynlock_destroy_callback( dynlock_destroy );
+	CRYPTO_set_dynlock_lock_callback( dynlock_lock );
+
 	return NULL;
 
 nothreadid:
