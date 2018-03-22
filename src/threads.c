@@ -30,6 +30,16 @@ struct CRYPTO_dynlock_value {
 #include"errors/errors.h"
 
 /**
+ * Number of static locks.
+ */
+static int numStaticLocks = 0;
+
+/**
+ * Pointer to array of static locks.
+ */
+static struct CRYPTO_dynlock_value * staticLocks = NULL;
+
+/**
  * Dummy variable whose address serves as thread identifier.
  * We use this rather than the return value of thrd_current()
  * because libcrypto requires us to know whether the thread identifier
@@ -176,6 +186,20 @@ static void dynlock_lock( int mode, struct CRYPTO_dynlock_value * lock, const ch
 	}
 }
 
+/**
+ * Alters the state of a static lock.
+ *
+ * @param mode New state. See threads(3ssl) for specifics.
+ * @param n Static lock number.
+ * @param file Caller source file name.
+ * @param line Caller source file line number.
+ */
+static void locking_callback( int mode, int n, const char * file, int line ) {
+	if ( n < numStaticLocks ) {
+		dynlock_lock( mode, &staticLocks[n], file, line );
+	}
+}
+
 Error * e222crypto_threads_init( void ) {
 	Error * e = NULL;
 
@@ -191,11 +215,43 @@ Error * e222crypto_threads_init( void ) {
 	CRYPTO_set_dynlock_destroy_callback( dynlock_destroy );
 	CRYPTO_set_dynlock_lock_callback( dynlock_lock );
 
+	/* Init static locks */
+	numStaticLocks = CRYPTO_num_locks();
+	if ( numStaticLocks < 0 ) {
+		e = error_newf( "Invalid number of static locks: %d", numStaticLocks );
+		goto nostaticlocks;
+	}
+	staticLocks = malloc( numStaticLocks * sizeof( *staticLocks ) );
+	if ( ( staticLocks == NULL ) && ( numStaticLocks > 0 ) ) {
+		e = error_newc( "Insufficient memory to allocate static locks" );
+		goto nostaticlocks;
+	}
+	for ( int i = 0; i != numStaticLocks; ++i ) {
+		e = dynlock_init( &staticLocks[i] );
+		if ( e != NULL ) {
+			e = error_wrapf( e, "Unable to initialise static lock %d", i );
+			/* De-init previous locks */
+			for ( int j = i - 1; j >= 0; --j ) {
+				dynlock_fini( &staticLocks[j] );
+			}
+			goto nostaticlocks;
+		}
+	}
+	CRYPTO_set_locking_callback( locking_callback );
+
 	return NULL;
 
+nostaticlocks:
+	free( staticLocks );
 nothreadid:
+alreadyinit:
 	return e;
 }
 
 void e222crypto_threads_fini( void ) {
+	for ( int i = 0; i < numStaticLocks; ++i ) {
+		dynlock_fini( &staticLocks[i] );
+	}
+
+	free( staticLocks );
 }
