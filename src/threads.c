@@ -47,7 +47,7 @@ static void threadid_func( CRYPTO_THREADID * dest ) {
 	CRYPTO_THREADID_set_pointer( dest, &threadLocalDummy );
 }
 
-static struct CRYPTO_dynlock_value * dynlock_create( char * file, int line ) {
+static struct CRYPTO_dynlock_value * dynlock_create( const char * file, int line ) {
 	struct CRYPTO_dynlock_value * result = malloc( sizeof( *result ) );
 	if ( result == NULL ) {
 		goto nodynlock;
@@ -73,13 +73,13 @@ nodynlock:
 	return NULL;
 }
 
-static void dynlock_destroy( struct CRYPTO_dynlock_value * lock, char * file, int line ) {
+static void dynlock_destroy( struct CRYPTO_dynlock_value * lock, const char * file, int line ) {
 	mtx_destroy( &lock->writerLock );
 	mtx_destroy( &lock->entryLock );
 	free( lock );
 }
 
-static void dynlock_lock( int mode, struct CRYPTO_dynlock_value * lock, char * file, int line ) {
+static void dynlock_lock( int mode, struct CRYPTO_dynlock_value * lock, const char * file, int line ) {
 	if ( mode & CRYPTO_LOCK ) {
 		mtx_lock( &lock->entryLock );
 		if ( mode & CRYPTO_READ ) {
