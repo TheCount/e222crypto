@@ -26,9 +26,14 @@ Error * e222crypto_init( void ) {
 	if ( e != NULL ) {
 		goto nothreads;
 	}
+	e = e222crypto_rand_init();
+	if ( e != NULL ) {
+		goto norand;
+	}
 
 	return NULL;
 
+norand:
 nothreads:
 	EVP_cleanup();
 	ERR_free_strings();
@@ -44,6 +49,7 @@ void e222crypto_fini( void ) {
 	}
 
 	/* Finalise */
+	e222crypto_rand_fini();
 	EVP_cleanup();
 	ERR_free_strings();
 	e222crypto_threads_fini();

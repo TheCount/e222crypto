@@ -7,6 +7,7 @@ endif()
 
 set( E222CRYPTO_LIB_SOURCES
 	init.c
+	rand.c
 	threads.c
 )
 set( E222CRYPTO_LIB_LINK
