@@ -32,6 +32,7 @@ Error * e222crypto_init( void ) {
 nothreads:
 	EVP_cleanup();
 	ERR_free_strings();
+	e222crypto_threads_fini();
 alreadyinit:
 	return e;
 }
