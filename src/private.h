@@ -29,4 +29,17 @@ Error * e222crypto_rand_init( void );
  */
 void e222crypto_rand_fini( void );
 
+/**
+ * Initialises curve.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_curve_init( void );
+
+/**
+ * Uninitialises curve.
+ */
+void e222crypto_curve_fini( void );
+
 #endif

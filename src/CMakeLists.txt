@@ -6,6 +6,7 @@ else()
 endif()
 
 set( E222CRYPTO_LIB_SOURCES
+	curve.c
 	init.c
 	rand.c
 	threads.c

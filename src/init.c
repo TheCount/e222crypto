@@ -30,9 +30,16 @@ Error * e222crypto_init( void ) {
 	if ( e != NULL ) {
 		goto norand;
 	}
+	e = e222crypto_curve_init();
+	if ( e != NULL ) {
+		goto nocurve;
+	}
 
 	return NULL;
 
+	e222crypto_curve_fini();
+nocurve:
+	e222crypto_rand_fini();
 norand:
 nothreads:
 	EVP_cleanup();
@@ -49,6 +56,7 @@ void e222crypto_fini( void ) {
 	}
 
 	/* Finalise */
+	e222crypto_curve_fini();
 	e222crypto_rand_fini();
 	EVP_cleanup();
 	ERR_free_strings();
