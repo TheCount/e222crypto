@@ -26,6 +26,11 @@
 /** @} */
 
 /**
+ * Big number context.
+ */
+static BN_CTX * bnctx;
+
+/**
  * E-222 curve group.
  */
 static EC_GROUP * e222group;
@@ -215,7 +220,7 @@ Error * e222crypto_curve_init( void ) {
 	Error * e = NULL;
 
 	/* Big number context */
-	BN_CTX * bnctx = BN_CTX_new();
+	bnctx = BN_CTX_new();
 	if ( bnctx == NULL ) {
 		e = crypto_error( "Unable to allocate big number context" );
 		goto nobnctx;
@@ -249,7 +254,9 @@ nogenset:
 nogen:
 	group_del( group );
 nogroup:
-	BN_CTX_free( bnctx );
+	if ( e != NULL ) {
+		BN_CTX_free( bnctx );
+	}
 nobnctx:
 	return e;
 }
@@ -257,4 +264,5 @@ nobnctx:
 void e222crypto_curve_fini( void ) {
 	group_del( e222group );
 	e222group = NULL;
+	BN_CTX_free( bnctx );
 }
