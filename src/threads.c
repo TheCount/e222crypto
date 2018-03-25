@@ -2,6 +2,8 @@
 #include<stdlib.h>
 #include<thread.h>
 
+#include"private.h"
+
 /**
  * Provides a dynamic lock type
  * for libcrypto's dynlock.
@@ -206,7 +208,7 @@ Error * e222crypto_threads_init( void ) {
 	/* Set thread id callback */
 	int rc = CRYPTO_THREADID_set_callback( threadid_func );
 	if ( rc != 1 ) {
-		e = error_newc( "Thread-ID callback already set" );
+		e = crypto_error( "Thread-ID callback already set" );
 		goto nothreadid;
 	}
 

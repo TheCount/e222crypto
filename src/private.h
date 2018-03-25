@@ -1,6 +1,8 @@
 #ifndef E222CRYPTO_PRIVATE_H_
 #define E222CRYPTO_PRIVATE_H_
 
+#include<openssl/err.h>
+
 #include"errors/errors.h"
 
 /**
@@ -41,5 +43,32 @@ Error * e222crypto_curve_init( void );
  * Uninitialises curve.
  */
 void e222crypto_curve_fini( void );
+
+/**
+ * Creates a libcyrpto error.
+ *
+ * @param msg String constant error message.
+ *
+ * @return A pointer to an error is returned.
+ */
+static inline Error * crypto_error( const char * msg ) {
+	if ( msg == NULL ) {
+		return error_newc( "Invalid crypto error message" );
+	}
+	Error * e = NULL;
+	unsigned long errnum;
+	while ( ( errnum = ERR_get_error() ) != 0 ) {
+		if ( e == NULL ) {
+			e = error_newf( "crypto: %s", ERR_error_string( errnum, NULL ) );
+		} else {
+			e = error_wrapf( e, "crypto: %s", ERR_error_string( errnum, NULL ) );
+		}
+	}
+	if ( e == NULL ) {
+		return error_newf( "No crypto error in queue: %s", msg );
+	} else {
+		return error_wrapc( e, msg );
+	}
+}
 
 #endif

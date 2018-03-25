@@ -1,6 +1,8 @@
 #include<openssl/bn.h>
 #include<openssl/ec.h>
 
+#include"private.h"
+
 #include"errors/errors.h"
 
 /**
@@ -60,24 +62,24 @@ static Error * group_new( EC_GROUP ** group, BN_CTX * bnctx ) {
 	BIGNUM * b = NULL;
 	int rc = BN_dec2bn( &p, CURVE_P );
 	if ( rc <= 0 ) {
-		e = error_newc( "Unable to create curve parameter p" );
+		e = crypto_error( "Unable to create curve parameter p" );
 		goto nop;
 	}
 	rc = BN_dec2bn( &a, CURVE_A );
 	if ( rc <= 0 ) {
-		e = error_newc( "Unable to create curve parameter a" );
+		e = crypto_error( "Unable to create curve parameter a" );
 		goto noa;
 	}
 	rc = BN_dec2bn( &b, CURVE_B );
 	if ( rc <= 0 ) {
-		e = error_newc( "Unable to create curve parameter b" );
+		e = crypto_error( "Unable to create curve parameter b" );
 		goto nob;
 	}
 
 	/* Create group */
 	*group = EC_GROUP_new_curve_GFp( p, a, b, bnctx );
 	if ( *group == NULL ) {
-		e = error_newc( "Unable to create E-222 curve" );
+		e = crypto_error( "Unable to create E-222 curve" );
 	}
 
 	/* Cleanup */
@@ -148,31 +150,31 @@ static Error * generator_new( EC_POINT ** gen, BIGNUM ** order, const EC_GROUP *
 	BIGNUM * y = NULL;
 	int rc = BN_dec2bn( &x, GEN_X );
 	if ( rc <= 0 ) {
-		e = error_newc( "Unable to create generator coordinate x" );
+		e = crypto_error( "Unable to create generator coordinate x" );
 		goto nox;
 	}
 	rc = BN_dec2bn( &y, GEN_Y );
 	if ( rc <= 0 ) {
-		e = error_newc( "Unable to create generator coordinate y" );
+		e = crypto_error( "Unable to create generator coordinate y" );
 		goto noy;
 	}
 
 	/* Create generator */
 	EC_POINT * point = EC_POINT_new( group );
 	if ( point == NULL ) {
-		e = error_newc( "Unable to create curve point" );
+		e = crypto_error( "Unable to create curve point" );
 		goto nopoint;
 	}
 	rc = EC_POINT_set_affine_coordinates_GFp( group, point, x, y, bnctx );
 	if ( rc != 1 ) {
-		e = error_newc( "Unable to set affine coordinates of generator" );
+		e = crypto_error( "Unable to set affine coordinates of generator" );
 		goto nocoord;
 	}
 
 	/* Create order */
 	rc = BN_dec2bn( order, ORDER );
 	if ( rc <= 0 ) {
-		e = error_newc( "Unable to create generator order" );
+		e = crypto_error( "Unable to create generator order" );
 		goto noorder;
 	}
 
@@ -215,7 +217,7 @@ Error * e222crypto_curve_init( void ) {
 	/* Big number context */
 	BN_CTX * bnctx = BN_CTX_new();
 	if ( bnctx == NULL ) {
-		e = error_newc( "Unable to allocate big number context" );
+		e = crypto_error( "Unable to allocate big number context" );
 		goto nobnctx;
 	}
 
@@ -235,7 +237,7 @@ Error * e222crypto_curve_init( void ) {
 	}
 	int rc = EC_GROUP_set_generator( group, gen, order, NULL );
 	if ( rc != 1 ) {
-		e = error_newc( "Unable to set group generator" );
+		e = crypto_error( "Unable to set group generator" );
 		goto nogenset;
 	}
 
