@@ -95,13 +95,14 @@ static void group_del( EC_GROUP * group ) {
  *
  * @param gen Pointer to location to store generation pointer in.
  * @param order Pointer to location to store order pointer in.
+ * @param cofactor Pointer to location to store cofactor pointer in.
  * @param group Pointer to E-222 group.
  * @param bnctx Pointer to big number context.
  *
  * @return On success, a null pointer is returned.\n
  * 	On error, a pointer to an error is returned.
  */
-static Error * generator_new( EC_POINT ** gen, BIGNUM ** order, const EC_GROUP * group, BN_CTX * bnctx ) {
+static Error * generator_new( EC_POINT ** gen, BIGNUM ** order, BIGNUM ** cofactor, const EC_GROUP * group, BN_CTX * bnctx ) {
 	Error * e = NULL;
 
 	/* Sanity checks */
@@ -119,6 +120,14 @@ static Error * generator_new( EC_POINT ** gen, BIGNUM ** order, const EC_GROUP *
 	}
 	if ( *order != NULL ) {
 		e = error_newc( "Supplied order pointer already initialised" );
+		goto badparm;
+	}
+	if ( cofactor == NULL ) {
+		e = error_newc( "Supplied cofactor storage pointer is null" );
+		goto badparm;
+	}
+	if ( *cofactor != NULL ) {
+		e = error_newc( "Supplied cofactor pointer already initialised" );
 		goto badparm;
 	}
 	if ( group == NULL ) {
@@ -156,17 +165,31 @@ static Error * generator_new( EC_POINT ** gen, BIGNUM ** order, const EC_GROUP *
 		goto nocoord;
 	}
 
-	/* Create order */
+	/* Create order and cofactor */
 	rc = BN_dec2bn( order, ORDER );
 	if ( rc <= 0 ) {
 		e = crypto_error( "Unable to create generator order" );
 		goto noorder;
+	}
+	*cofactor = BN_new();
+	if ( *cofactor == NULL ) {
+		e = crypto_error( "Unable to allocate cofactor" );
+		goto nocfalloc;
+	}
+	rc = BN_set_word( *cofactor, COFACTOR );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set cofactor" );
+		goto nocofactor;
 	}
 
 	/* Cleanup */
 	*gen = point;
 	goto success;
 
+nocofactor:
+	*cofactor = NULL;
+nocfalloc:
+	BN_clear_free( *order );
 noorder:
 	*order = NULL;
 nocoord:
@@ -186,13 +209,17 @@ badparm:
  *
  * @param gen Pointer to generator, or a null pointer.
  * @param order Pointer to order, or a null pointer.
+ * @param cofactor Pointer to cofactor, or a null pointer.
  */
-static void generator_del( EC_POINT * gen, BIGNUM * order ) {
+static void generator_del( EC_POINT * gen, BIGNUM * order, BIGNUM * cofactor ) {
 	if ( gen != NULL ) {
 		EC_POINT_clear_free( gen );
 	}
 	if ( order != NULL ) {
 		BN_clear_free( order );
+	}
+	if ( cofactor != NULL ) {
+		BN_clear_free( cofactor );
 	}
 }
 
@@ -216,11 +243,12 @@ Error * e222crypto_curve_init( void ) {
 	/* Generator */
 	EC_POINT * gen = NULL;
 	BIGNUM * order = NULL;
-	e = generator_new( &gen, &order, group, bnctx );
+	BIGNUM * cofactor = NULL;
+	e = generator_new( &gen, &order, &cofactor, group, bnctx );
 	if ( e != NULL ) {
 		goto nogen;
 	}
-	int rc = EC_GROUP_set_generator( group, gen, order, NULL );
+	int rc = EC_GROUP_set_generator( group, gen, order, cofactor );
 	if ( rc != 1 ) {
 		e = crypto_error( "Unable to set group generator" );
 		goto nogenset;
@@ -230,7 +258,7 @@ Error * e222crypto_curve_init( void ) {
 	e222group = group;
 	group = NULL;
 nogenset:
-	generator_del( gen, order );
+	generator_del( gen, order, cofactor );
 nogen:
 	group_del( group );
 nogroup:
