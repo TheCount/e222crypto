@@ -274,3 +274,46 @@ void e222crypto_curve_fini( void ) {
 	e222group = NULL;
 	BN_CTX_free( bnctx );
 }
+
+Error * e222crypto_privkey_generate( E222CryptoPrivkey * privkey ) {
+	Error * e = NULL;
+
+	/* Sanity check */
+	if ( privkey == NULL ) {
+		e = error_newc( "Private key location pointer is null" );
+		goto badparm;
+	}
+
+	/* Generate key */
+	EC_KEY * key = EC_KEY_new();
+	if ( key == NULL ) {
+		e = crypto_error( "Unable to create key" );
+		goto nokey;
+	}
+	int rc = EC_KEY_set_group( key, e222group );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set key group" );
+		goto nogroup;
+	}
+	rc = EC_KEY_generate_key( key );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to generate key" );
+		goto nogen;
+	}
+
+	privkey->key = key;
+	return NULL;
+
+nogen:
+nogroup:
+	EC_KEY_free( key ); // FIXME: clear free?
+nokey:
+badparm:
+	return e;
+}
+
+void e222crypto_privkey_del( E222CryptoPrivkey privkey ) {
+	if ( privkey.key != NULL ) {
+		EC_KEY_free( privkey.key );
+	}
+}

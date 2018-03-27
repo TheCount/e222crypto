@@ -12,3 +12,4 @@ endmacro( test )
 # Tests
 test( initfini )
 test( params )
+test( keygen )

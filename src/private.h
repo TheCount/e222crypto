@@ -3,6 +3,8 @@
 
 #include<openssl/err.h>
 
+#include"e222crypto.h"
+
 #include"errors/errors.h"
 
 /**
