@@ -11,3 +11,4 @@ endmacro( test )
 
 # Tests
 test( initfini )
+test( params )
