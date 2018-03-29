@@ -20,6 +20,15 @@ typedef struct {
 } E222CryptoPrivkey;
 
 /**
+ * Public key.
+ *
+ * Fields are private to the implementation.
+ */
+typedef struct {
+	EC_KEY * key;
+} E222CryptoPubkey;
+
+/**
  * Initialises the E-222 crypto library.
  *
  * @return On success, a null pointer is returned.\n
@@ -73,5 +82,23 @@ Error * e222crypto_privkey_out( E222CryptoPrivkey privkey, void * buf );
  * 	On error, a pointer to an error is returned.
  */
 Error * e222crypto_privkey_in( E222CryptoPrivkey * privkey, const void * buf );
+
+/**
+ * Creates a public key from a private key.
+ *
+ * @param privkey Private key.
+ * @param pubkey Pointer to location to store public key in.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_privkey_getpubkey( E222CryptoPrivkey privkey, E222CryptoPubkey * pubkey );
+
+/**
+ * Destroys a public key.
+ *
+ * @param pubkey Public key to be destroyed.
+ */
+void e222crypto_pubkey_del( E222CryptoPubkey pubkey );
 
 #endif

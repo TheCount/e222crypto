@@ -420,3 +420,36 @@ nopriv:
 badparm:
 	return e;
 }
+
+Error * e222crypto_privkey_getpubkey( E222CryptoPrivkey privkey, E222CryptoPubkey * pubkey ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( privkey.key == NULL ) {
+		e = error_newc( "Uninitialised private key supplied" );
+		goto badparm;
+	}
+	if ( pubkey == NULL ) {
+		e = error_newc( "Supplied public key storage location is null" );
+		goto badparm;
+	}
+
+	/* Duplicate key */
+	int rc = EC_KEY_up_ref( privkey.key );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to duplicate key" );
+		goto nodup;
+	}
+
+	pubkey->key = privkey.key;
+
+nodup:
+badparm:
+	return e;
+}
+
+void e222crypto_pubkey_del( E222CryptoPubkey pubkey ) {
+	if ( pubkey.key != NULL ) {
+		EC_KEY_free( pubkey.key );
+	}
+}
