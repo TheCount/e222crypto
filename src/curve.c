@@ -317,3 +317,106 @@ void e222crypto_privkey_del( E222CryptoPrivkey privkey ) {
 		EC_KEY_free( privkey.key );
 	}
 }
+
+Error * e222crypto_privkey_out( E222CryptoPrivkey privkey, void * buf ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( privkey.key == NULL ) {
+		e = error_newc( "Uninitialised private key supplied" );
+		goto error;
+	}
+	if ( buf == NULL ) {
+		e = error_newc( "Null buffer supplied" );
+		goto error;
+	}
+
+	/* Serialise */
+	const BIGNUM * priv = EC_KEY_get0_private_key( privkey.key );
+	if ( priv == NULL ) {
+		e = error_newc( "Unable to retrieve private key; this should not happen" );
+		goto error;
+	}
+	int numbytes = BN_num_bytes( priv );
+	if ( numbytes != E222CRYPTO_PRIVSIZE ) {
+		e = error_newc( "Private key has wrong size; this should not happen" );
+		goto error;
+	}
+	BN_bn2bin( priv, buf );
+
+error:
+	return e;
+}
+
+Error * e222crypto_privkey_in( E222CryptoPrivkey * privkey, const void * buf ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( privkey == NULL ) {
+		e = error_newc( "Private key location pointer is null" );
+		goto badparm;
+	}
+	if ( buf == NULL ) {
+		e = error_newc( "Private key data buffer is null" );
+		goto badparm;
+	}
+
+	/* Get key as bignum and calculate public key */
+	BIGNUM * priv = BN_bin2bn( buf, E222CRYPTO_PRIVSIZE, NULL );
+	if ( priv == NULL ) {
+		e = crypto_error( "Unable to deserialise key data" );
+		goto nopriv;
+	}
+	EC_POINT * pub = EC_POINT_new( e222group );
+	if ( pub == NULL ) {
+		e = crypto_error( "Unable to create public key" );
+		goto nopub;
+	}
+	int rc = EC_POINTs_mul( e222group, pub, priv, 0, NULL, NULL, bnctx );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to calculate public key" );
+		goto nopubmul;
+	}
+
+	/* Build key */
+	EC_KEY * key = EC_KEY_new();
+	if ( key == NULL ) {
+		e = crypto_error( "Unable to create key" );
+		goto nokey;
+	}
+	rc = EC_KEY_set_group( key, e222group );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set key group" );
+		goto keyerr;
+	}
+	rc = EC_KEY_set_private_key( key, priv );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set private key" );
+		goto keyerr;
+	}
+	rc = EC_KEY_set_public_key( key, pub );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set public key" );
+		goto keyerr;
+	}
+	rc = EC_KEY_check_key( key );
+	if ( rc != 1 ) {
+		e = crypto_error( "Key check failed" );
+		goto keyerr;
+	}
+
+	privkey->key = key;
+	goto success;
+
+keyerr:
+	EC_KEY_free( key );
+nokey:
+nopubmul:
+success:
+	EC_POINT_clear_free( pub );
+nopub:
+	BN_clear_free( priv );
+nopriv:
+badparm:
+	return e;
+}
