@@ -306,7 +306,7 @@ Error * e222crypto_privkey_generate( E222CryptoPrivkey * privkey ) {
 
 nogen:
 nogroup:
-	EC_KEY_free( key ); // FIXME: clear free?
+	EC_KEY_free( key );
 nokey:
 badparm:
 	return e;
