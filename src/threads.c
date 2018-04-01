@@ -257,3 +257,7 @@ void e222crypto_threads_fini( void ) {
 
 	free( staticLocks );
 }
+
+void e222crypto_thread_fini( void ) {
+	ERR_remove_thread_state( NULL );
+}

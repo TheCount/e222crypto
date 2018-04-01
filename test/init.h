@@ -17,4 +17,9 @@ static inline void init( void ) {
 	assert( e == NULL );
 }
 
+static inline void fini( void ) {
+	e222crypto_thread_fini();
+	e222crypto_fini();
+}
+
 #endif

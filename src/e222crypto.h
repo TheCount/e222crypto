@@ -50,6 +50,13 @@ Error * e222crypto_init( const char * randpath );
 void e222crypto_fini( void );
 
 /**
+ * Uninitialises thread-specific data.
+ * Should be called by each thread right before exiting.
+ * Must be called before #e222crypto_fini().
+ */
+void e222crypto_thread_fini( void );
+
+/**
  * Generates a new private key.
  *
  * @param privkey Pointer to location to store generated key in.

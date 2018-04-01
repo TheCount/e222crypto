@@ -16,5 +16,5 @@ int main( void ) {
 	assert( e == NULL );
 	e222crypto_privkey_del( privkey );
 
-	e222crypto_fini();
+	fini();
 }

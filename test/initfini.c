@@ -7,6 +7,7 @@
 int main( void ) {
 	Error * e = e222crypto_init( NULL );
 	assert( e == NULL );
+	e222crypto_thread_fini();
 	e222crypto_fini();
 	e = e222crypto_init( NULL );
 	assert( e != NULL );

@@ -17,5 +17,5 @@ int main( void ) {
 
 	e222crypto_pubkey_del( pubkey );
 	e222crypto_privkey_del( privkey );
-	e222crypto_fini();
+	fini();
 }
