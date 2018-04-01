@@ -519,12 +519,17 @@ Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf ) {
 		e = crypto_error( "Unable to create public key" );
 		goto nopub;
 	}
+	int rc = EC_POINT_oct2point( e222group, pub, tmp, sizeof( tmp ), bnctx );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to load public key" );
+		goto nopubload;
+	}
 	EC_KEY * key = EC_KEY_new();
 	if ( key == NULL ) {
 		e = crypto_error( "Unable to create key" );
 		goto nokey;
 	}
-	int rc = EC_KEY_set_group( key, e222group );
+	rc = EC_KEY_set_group( key, e222group );
 	if ( rc != 1 ) {
 		e = crypto_error( "Unable to set group for key" );
 		goto nogroup;
@@ -542,6 +547,7 @@ nokeyset:
 nogroup:
 	EC_KEY_free( key );
 nokey:
+nopubload:
 success:
 	EC_POINT_clear_free( pub );
 nopub:
