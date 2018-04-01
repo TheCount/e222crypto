@@ -320,6 +320,26 @@ void e222crypto_privkey_del( E222CryptoPrivkey privkey ) {
 	}
 }
 
+Error * e222crypto_privkey_cmp( E222CryptoPrivkey privkey1, E222CryptoPrivkey privkey2, int * result ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( ( privkey1.key == NULL ) || ( privkey2.key == NULL ) ) {
+		e = error_newc( "Uninitialised private key supplied" );
+		goto badparm;
+	}
+	if ( result == NULL ) {
+		e = error_newc( "Result storage location is null" );
+		goto badparm;
+	}
+
+	/* Set result */
+	*result = BN_cmp( EC_KEY_get0_private_key( privkey1.key ), EC_KEY_get0_private_key( privkey2.key ) );
+
+badparm:
+	return e;
+}
+
 Error * e222crypto_privkey_out( E222CryptoPrivkey privkey, void * buf ) {
 	Error * e = NULL;
 
@@ -454,6 +474,29 @@ void e222crypto_pubkey_del( E222CryptoPubkey pubkey ) {
 	if ( pubkey.key != NULL ) {
 		EC_KEY_free( pubkey.key );
 	}
+}
+
+Error * e222crypto_pubkey_cmp( E222CryptoPubkey pubkey1, E222CryptoPubkey pubkey2, int * result ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( ( pubkey1.key == NULL ) || ( pubkey2.key == NULL ) ) {
+		e = error_newc( "Uninitialised public key supplied" );
+		goto badparm;
+	}
+	if ( result == NULL ) {
+		e = error_newc( "Result storage location is null" );
+		goto badparm;
+	}
+
+	/* Set result */
+	*result = EC_POINT_cmp( e222group, EC_KEY_get0_public_key( pubkey1.key ), EC_KEY_get0_public_key( pubkey2.key ), bnctx );
+	if ( *result == -1 ) {
+		e = crypto_error( "Point comparison failed" );
+	}
+
+badparm:
+	return e;
 }
 
 Error * e222crypto_pubkey_out( E222CryptoPubkey pubkey, void * buf ) {

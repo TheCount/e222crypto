@@ -64,6 +64,20 @@ Error * e222crypto_privkey_generate( E222CryptoPrivkey * privkey );
 void e222crypto_privkey_del( E222CryptoPrivkey privkey );
 
 /**
+ * Compares two private keys.
+ *
+ * @param privkey1 First private key.
+ * @param privkey2 Second private key.
+ * @param result Pointer to location to store result.
+ *
+ * @return On success, a null pointer is returned.
+ * 	A non-zero value is stored in @c *result if and only if
+ * 	the two provided keys are different.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_privkey_cmp( E222CryptoPrivkey privkey1, E222CryptoPrivkey privkey2, int * result );
+
+/**
  * Serialises a private key.
  * The serialised key size is always #E222CRYPTO_PRIVSIZE bytes.
  *
@@ -105,6 +119,20 @@ Error * e222crypto_privkey_getpubkey( E222CryptoPrivkey privkey, E222CryptoPubke
  * @param pubkey Public key to be destroyed.
  */
 void e222crypto_pubkey_del( E222CryptoPubkey pubkey );
+
+/**
+ * Compares two public keys.
+ *
+ * @param pubkey1 First public key.
+ * @param pubkey2 Second public key.
+ * @param result Pointer to location to store result.
+ *
+ * @return On success, a null pointer is returned.
+ * 	A non-zero value is stored in @c *result if and only if
+ * 	the two provided keys are different.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_pubkey_cmp( E222CryptoPubkey pubkey1, E222CryptoPubkey pubkey2, int * result );
 
 /**
  * Serialises a public key.
