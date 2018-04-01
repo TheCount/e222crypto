@@ -1,6 +1,7 @@
 #include<assert.h>
 
 #include"e222crypto.h"
+#include"error.h"
 #include"init.h"
 
 #include"errors/errors.h"
@@ -26,13 +27,13 @@ int main( void ) {
 	privnull.key = NULL;
 	pubnull.key = NULL;
 	Error * e = e222crypto_privkey_generate( &privkey1 );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_privkey_getpubkey( privkey1, &pubkey1 );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_privkey_generate( &privkey2 );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_privkey_getpubkey( privkey2, &pubkey2 );
-	assert( e == NULL );
+	assert_error_null( e );
 	int result;
 
 	/* Test private key comparison */
@@ -44,19 +45,19 @@ int main( void ) {
 	test_privcmpfail( privkey1, privnull, &result );
 	test_privcmpfail( privkey1, privkey2, NULL );
 	e = e222crypto_privkey_cmp( privkey1, privkey2, &result );
-	assert( e == NULL );
+	assert_error_null( e );
 	assert( result != 0 );
 	e = e222crypto_privkey_cmp( privkey1, privkey1, &result );
-	assert( e == NULL );
+	assert_error_null( e );
 	assert( result == 0 );
 	e222crypto_privkey_del( privkey2 );
 	char privbuf[E222CRYPTO_PRIVSIZE];
 	e = e222crypto_privkey_out( privkey1, privbuf );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_privkey_in( &privkey2, privbuf );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_privkey_cmp( privkey1, privkey2, &result );
-	assert( e == NULL );
+	assert_error_null( e );
 	assert( result == 0 );
 
 	/* Test public key comparison */
@@ -68,19 +69,19 @@ int main( void ) {
 	test_pubcmpfail( pubkey1, pubnull, &result );
 	test_pubcmpfail( pubkey1, pubkey2, NULL );
 	e = e222crypto_pubkey_cmp( pubkey1, pubkey2, &result );
-	assert( e == NULL );
+	assert_error_null( e );
 	assert( result != 0 );
 	e = e222crypto_pubkey_cmp( pubkey1, pubkey1, &result );
-	assert( e == NULL );
+	assert_error_null( e );
 	assert( result == 0 );
 	e222crypto_pubkey_del( pubkey2 );
 	char pubbuf[E222CRYPTO_PUBSIZE];
 	e = e222crypto_pubkey_out( pubkey1, pubbuf );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_pubkey_in( &pubkey2, pubbuf );
-	assert( e == NULL );
+	assert_error_null( e );
 	e = e222crypto_pubkey_cmp( pubkey1, pubkey2, &result );
-	assert( e == NULL );
+	assert_error_null( e );
 	assert( result == 0 );
 
 	/* Cleanup */

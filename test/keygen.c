@@ -1,6 +1,7 @@
 #include<assert.h>
 
 #include"e222crypto.h"
+#include"error.h"
 #include"init.h"
 
 #include"errors/errors.h"
@@ -13,7 +14,7 @@ int main( void ) {
 	error_del( e );
 	E222CryptoPrivkey privkey;
 	e = e222crypto_privkey_generate( &privkey );
-	assert( e == NULL );
+	assert_error_null( e );
 	e222crypto_privkey_del( privkey );
 
 	fini();
