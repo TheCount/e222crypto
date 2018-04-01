@@ -360,11 +360,12 @@ Error * e222crypto_privkey_out( E222CryptoPrivkey privkey, void * buf ) {
 		goto error;
 	}
 	int numbytes = BN_num_bytes( priv );
-	if ( numbytes != E222CRYPTO_PRIVSIZE ) {
+	if ( ( numbytes > E222CRYPTO_PRIVSIZE ) || ( numbytes <= 0 ) ) {
 		e = error_newf( "Private key has wrong size: %d; this should not happen", numbytes );
 		goto error;
 	}
-	BN_bn2bin( priv, buf );
+	memset( buf, '\0', E222CRYPTO_PRIVSIZE - numbytes );
+	BN_bn2bin( priv, buf + E222CRYPTO_PRIVSIZE - numbytes );
 
 error:
 	return e;
