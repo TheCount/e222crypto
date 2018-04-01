@@ -361,7 +361,7 @@ Error * e222crypto_privkey_out( E222CryptoPrivkey privkey, void * buf ) {
 	}
 	int numbytes = BN_num_bytes( priv );
 	if ( numbytes != E222CRYPTO_PRIVSIZE ) {
-		e = error_newc( "Private key has wrong size; this should not happen" );
+		e = error_newf( "Private key has wrong size: %d; this should not happen", numbytes );
 		goto error;
 	}
 	BN_bn2bin( priv, buf );
