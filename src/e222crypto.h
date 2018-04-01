@@ -36,10 +36,13 @@ typedef struct {
 /**
  * Initialises the E-222 crypto library.
  *
+ * @param randpath Path to a file containing a random number generator seed,
+ * 	or a null pointer. If the latter, a default random source will be used.
+ *
  * @return On success, a null pointer is returned.\n
  * 	On error, a pointer to an error is returned.
  */
-Error * e222crypto_init( void );
+Error * e222crypto_init( const char * randpath );
 
 /**
  * Uninitialises the E-222 crypto library.

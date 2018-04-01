@@ -1,6 +1,7 @@
 #include<assert.h>
 
 #include"e222crypto.h"
+#include"init.h"
 
 #include"errors/errors.h"
 
@@ -17,15 +18,14 @@ static void test_pubcmpfail( E222CryptoPubkey pubkey1, E222CryptoPubkey pubkey2,
 }
 
 int main( void ) {
-	Error * e = e222crypto_init();
-	assert( e == NULL );
+	init();
 
 	/* Generate keys */
 	E222CryptoPrivkey privnull, privkey1, privkey2;
 	E222CryptoPubkey pubnull, pubkey1, pubkey2;
 	privnull.key = NULL;
 	pubnull.key = NULL;
-	e = e222crypto_privkey_generate( &privkey1 );
+	Error * e = e222crypto_privkey_generate( &privkey1 );
 	assert( e == NULL );
 	e = e222crypto_privkey_getpubkey( privkey1, &pubkey1 );
 	assert( e == NULL );

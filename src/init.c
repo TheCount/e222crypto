@@ -10,7 +10,7 @@
  */
 static int initialised = 0;
 
-Error * e222crypto_init( void ) {
+Error * e222crypto_init( const char * randpath ) {
 	Error * e = NULL;
 
 	/* Sanity check */
@@ -26,7 +26,7 @@ Error * e222crypto_init( void ) {
 	if ( e != NULL ) {
 		goto nothreads;
 	}
-	e = e222crypto_rand_init();
+	e = e222crypto_rand_init( randpath );
 	if ( e != NULL ) {
 		goto norand;
 	}

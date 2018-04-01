@@ -2,6 +2,11 @@ include_directories( ${CMAKE_SOURCE_DIR}/src )
 
 link_directories( ${CMAKE_BINARY_DIR}/src )
 
+# Fast random seed source for testing
+if( UNIX )
+	add_definitions( "-DRANDOM_SOURCE=\"/dev/urandom\"" )
+endif()
+
 # Test macro
 macro( test TESTNAME )
 	add_executable( ${TESTNAME}-test ${TESTNAME}.c )

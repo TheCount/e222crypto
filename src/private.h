@@ -44,10 +44,13 @@ void e222crypto_threads_fini( void );
 /**
  * Initialises random number generation support for libcrypto.
  *
+ * @param randpath Path to a file containing a random number generator seed,
+ * 	or a null pointer. If the latter, a default random source will be used.
+ *
  * @return On success, a null pointer is returned.\n
  * 	On error, a pointer to an error is returned.
  */
-Error * e222crypto_rand_init( void );
+Error * e222crypto_rand_init( const char * randpath );
 
 /**
  * Uninitialises random number generation support for libcrypto.

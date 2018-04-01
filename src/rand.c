@@ -11,11 +11,14 @@
 #define ENTROPY_NEEDED 32
 #endif
 
-Error * e222crypto_rand_init( void ) {
+Error * e222crypto_rand_init( const char * randpath ) {
 	Error * e = NULL;
-	int rc = RAND_load_file( "/dev/random", ENTROPY_NEEDED );
+	if ( randpath == NULL ) {
+		randpath = "/dev/random";
+	}
+	int rc = RAND_load_file( randpath, ENTROPY_NEEDED );
 	if ( rc != ENTROPY_NEEDED ) {
-		e = crypto_error( "Insufficient entropy from /dev/random" );
+		e = crypto_error( "Insufficient entropy from seed file" );
 		goto noent;
 	}
 

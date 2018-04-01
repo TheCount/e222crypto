@@ -2,15 +2,15 @@
 #include<string.h>
 
 #include"e222crypto.h"
+#include"init.h"
 
 #include"errors/errors.h"
 
 int main( void ) {
-	Error * e = e222crypto_init();
-	assert( e == NULL );
+	init();
 
 	E222CryptoPrivkey privkey1;
-	e = e222crypto_privkey_generate( &privkey1 );
+	Error * e = e222crypto_privkey_generate( &privkey1 );
 	assert( e == NULL );
 	char buf1[E222CRYPTO_PRIVSIZE];
 	e = e222crypto_privkey_out( privkey1, buf1 );
