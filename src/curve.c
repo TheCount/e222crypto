@@ -1,3 +1,5 @@
+#include<string.h>
+
 #include<openssl/bn.h>
 #include<openssl/ec.h>
 
@@ -452,4 +454,97 @@ void e222crypto_pubkey_del( E222CryptoPubkey pubkey ) {
 	if ( pubkey.key != NULL ) {
 		EC_KEY_free( pubkey.key );
 	}
+}
+
+Error * e222crypto_pubkey_out( E222CryptoPubkey pubkey, void * buf ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( pubkey.key == NULL ) {
+		e = error_newc( "Uninitialised public key supplied" );
+		goto error;
+	}
+	if ( buf == NULL ) {
+		e = error_newc( "Null buffer supplied" );
+		goto error;
+	}
+
+	/* Serialise */
+	const EC_POINT * pub = EC_KEY_get0_public_key( pubkey.key );
+	unsigned char tmp[E222CRYPTO_PUBSIZE + 1];
+	size_t numconv = EC_POINT_point2oct( e222group, pub, POINT_CONVERSION_COMPRESSED, tmp, sizeof( tmp ), bnctx );
+	if ( numconv != E222CRYPTO_PUBSIZE + 1 ) {
+		e = crypto_error( "Unable to convert public key" );
+		goto error;
+	}
+	if ( tmp[1] & 0x80u ) {
+		e = error_newc( "Pubkey MSB set" );
+		goto error;
+	}
+	if ( tmp[0] == POINT_CONVERSION_COMPRESSED + 1 ) {
+		tmp[1] |= 0x80;
+	}
+	memcpy( buf, tmp + 1, E222CRYPTO_PUBSIZE );
+
+error:
+	return e;
+}
+
+Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( pubkey == NULL ) {
+		e = error_newc( "Public key location pointer is null" );
+		goto badparm;
+	}
+	if ( buf == NULL ) {
+		e = error_newc( "Public key data buffer is null" );
+		goto badparm;
+	}
+
+	/* Convert key to oct format */
+	unsigned char tmp[E222CRYPTO_PUBSIZE + 1];
+	memcpy( tmp + 1, buf, E222CRYPTO_PUBSIZE );
+	if ( tmp[1] & 0x80 ) {
+		tmp[0] = POINT_CONVERSION_COMPRESSED + 1;
+		tmp[1] &= 0x7F;
+	} else {
+		tmp[0] = POINT_CONVERSION_COMPRESSED;
+	}
+
+	/* Create public key */
+	EC_POINT * pub = EC_POINT_new( e222group );
+	if ( pub == NULL ) {
+		e = crypto_error( "Unable to create public key" );
+		goto nopub;
+	}
+	EC_KEY * key = EC_KEY_new();
+	if ( key == NULL ) {
+		e = crypto_error( "Unable to create key" );
+		goto nokey;
+	}
+	int rc = EC_KEY_set_group( key, e222group );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set group for key" );
+		goto nogroup;
+	}
+	rc = EC_KEY_set_public_key( key, pub );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to set public key" );
+		goto nokeyset;
+	}
+
+	pubkey->key = key;
+	goto success;
+
+nokeyset:
+nogroup:
+	EC_KEY_free( key );
+nokey:
+success:
+	EC_POINT_clear_free( pub );
+nopub:
+badparm:
+	return e;
 }

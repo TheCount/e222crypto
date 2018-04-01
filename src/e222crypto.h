@@ -11,6 +11,11 @@
 #define E222CRYPTO_PRIVSIZE 28
 
 /**
+ * Size of serialised public key, in bytes.
+ */
+#define E222CRYPTO_PUBSIZE 28
+
+/**
  * Private key.
  *
  * Fields are private to the implementation.
@@ -100,5 +105,30 @@ Error * e222crypto_privkey_getpubkey( E222CryptoPrivkey privkey, E222CryptoPubke
  * @param pubkey Public key to be destroyed.
  */
 void e222crypto_pubkey_del( E222CryptoPubkey pubkey );
+
+/**
+ * Serialises a public key.
+ * The serialised key size is always #E222CRYPTO_PUBSIZE bytes.
+ *
+ * @param pubkey Public key to be serialised.
+ * @param buf Pointer to buffer to serialise to.
+ * 	Must be able to hold at least #E222CRYPTO_PUBSIZE bytes.
+ *
+ * @return On success, a null pointer is returned.
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_pubkey_out( E222CryptoPubkey pubkey, void * buf );
+
+/**
+ * Deserialises a public key.
+ *
+ * @param pubkey Pointer to location to store deserialised key in.
+ * @param buf Pointer to buffer to deserialise from.
+ * 	Must point to the #E222CRYPTO_PUBSIZE bytes of serialised key data.
+ *
+ * @return On success, a null pointer is returned.
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf );
 
 #endif
