@@ -680,3 +680,66 @@ void e222crypto_sig_del( E222CryptoSig sig ) {
 		ECDSA_SIG_free( sig.sig );
 	}
 }
+
+Error * e222crypto_sig_out( E222CryptoSig sig, void * buf ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( sig.sig == NULL ) {
+		e = error_newc( "Uninitialised signature supplied" );
+		goto badparm;
+	}
+	if ( buf == NULL ) {
+		e = error_newc( "Null signature serialisation buffer supplied" );
+		goto badparm;
+	}
+
+	/* Serialise */
+	e = bn_out( sig.sig->r, E222CRYPTO_SIGSIZE / 2, buf );
+	if ( e == NULL ) {
+		e = bn_out( sig.sig->s, E222CRYPTO_SIGSIZE / 2, buf + E222CRYPTO_SIGSIZE / 2 );
+	}
+
+badparm:
+	return e;
+}
+
+Error * e222crypto_sig_in( E222CryptoSig * sig, const void * buf ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( sig == NULL ) {
+		e = error_newc( "Null signature location pointer supplied" );
+		goto badparm;
+	}
+	if ( buf == NULL ) {
+		e = error_newc( "Null deserialisation buffer pointer supplied" );
+		goto badparm;
+	}
+
+	/* Create signature and deserialise */
+	sig->sig = ECDSA_SIG_new();
+	if ( sig->sig == NULL ) {
+		e = crypto_error( "Unable to create signature" );
+		goto nosig;
+	}
+	sig->sig->r = BN_bin2bn( buf, E222CRYPTO_SIGSIZE / 2, sig->sig->r );
+	if ( sig->sig->r == NULL ) {
+		e = crypto_error( "Unable to deserialise signature r" );
+		goto nosigr;
+	}
+	sig->sig->s = BN_bin2bn( buf + E222CRYPTO_SIGSIZE / 2, E222CRYPTO_SIGSIZE / 2, sig->sig->s );
+	if ( sig->sig->s == NULL ) {
+		e = crypto_error( "Unable to deserialise signature s" );
+		goto nosigs;
+	}
+
+	return NULL;
+
+nosigs:
+nosigr:
+	ECDSA_SIG_free( sig->sig );
+nosig:
+badparm:
+	return e;
+}

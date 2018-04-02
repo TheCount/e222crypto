@@ -23,6 +23,11 @@
 #define E222CRYPTO_DGSTSIZE 28
 
 /**
+ * Size of serialised signature, in bytes.
+ */
+#define E222CRYPTO_SIGSIZE 56
+
+/**
  * Private key.
  *
  * Fields are private to the implementation.
@@ -235,5 +240,29 @@ Error * e222crypto_verify( E222CryptoPubkey pubkey, const void * digest, E222Cry
  * @param sig Signature.
  */
 void e222crypto_sig_del( E222CryptoSig sig );
+
+/**
+ * Serialises a signature.
+ *
+ * @param sig Signature.
+ * @param buf Pointer to buffer to serialise signature into.
+ * 	Must be able to hold at least #E222CRYPTO_SIGSIZE bytes.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_sig_out( E222CryptoSig sig, void * buf );
+
+/**
+ * Deserialises a signature.
+ *
+ * @param sig Pointer to location to store signature in.
+ * @param buf Pointer to buffer to deserialise from.
+ * 	Must point to #E222CRYPTO_SIGSIZE bytes of serialised signature data.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_sig_in( E222CryptoSig * sig, const void * buf );
 
 #endif
