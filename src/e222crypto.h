@@ -3,6 +3,7 @@
 
 #include<openssl/bn.h>
 #include<openssl/ec.h>
+#include<openssl/ecdsa.h>
 
 #include"errors/errors.h"
 
@@ -40,6 +41,15 @@ typedef struct {
 typedef struct {
 	EC_KEY * key;
 } E222CryptoPubkey;
+
+/**
+ * Signature.
+ *
+ * Fields are private to the implementation.
+ */
+typedef struct {
+	ECDSA_SIG * sig;
+} E222CryptoSig;
 
 /**
  * Initialises the E-222 crypto library.
@@ -188,5 +198,42 @@ Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf );
  * 	On error, a pointer to an error is returned.
  */
 Error * e222crypto_digest( size_t msglen, const void * msg, void * dgst );
+
+/**
+ * Signs a digest using a private key.
+ *
+ * @param privkey Private key used to sign.
+ * @param digest Pointer to digest of #E222CRYPTO_DGSTSIZE bytes length.
+ * @param sig Pointer to location where signature can be stored.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_sign( E222CryptoPrivkey privkey, const void * digest, E222CryptoSig * sig );
+
+/**
+ * Verifies a digest signature using a public key.
+ *
+ * @param pubkey Public key used to verify.
+ * @param digest Pointer to digest of #E222CRYPTO_DGSTSIZE bytes length.
+ * @param sig Signature to verify.
+ * @param result Pointer to location where the result can be stored.
+ *
+ * @return If an error occurs during the verification process,
+ * 	a pointer to an error is returned.\n
+ * 	Otherwise, if the signature verification succeeds,
+ * 	a null pointer is returned,
+ * 	and a non-zero value is stored in @c *result.\n
+ * 	Otherwise, a null pointer is returned,
+ * 	and zero is stored in @c *result.
+ */
+Error * e222crypto_verify( E222CryptoPubkey pubkey, const void * digest, E222CryptoSig sig, int * result );
+
+/**
+ * Destroys a signature.
+ *
+ * @param sig Signature.
+ */
+void e222crypto_sig_del( E222CryptoSig sig );
 
 #endif

@@ -625,3 +625,69 @@ nopub:
 badparm:
 	return e;
 }
+
+Error * e222crypto_sign( E222CryptoPrivkey privkey, const void * digest, E222CryptoSig * sig ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( ( privkey.key == NULL ) || ( privkey.kinv == NULL ) || ( privkey.rp == NULL ) ) {
+		e = error_newc( "Uninitialised private key supplied" );
+		goto badparm;
+	}
+	if ( digest == NULL ) {
+		e = error_newc( "Null digest supplied" );
+		goto badparm;
+	}
+	if ( sig == NULL ) {
+		e = error_newc( "Null signature location pointer supplied" );
+		goto badparm;
+	}
+
+	/* Sign */
+	sig->sig = ECDSA_do_sign_ex( digest, E222CRYPTO_DGSTSIZE, privkey.kinv, privkey.rp, privkey.key );
+	if ( sig->sig == NULL ) {
+		e = crypto_error( "Unable to sign digest" );
+	}
+
+badparm:
+	return e;
+}
+
+Error * e222crypto_verify( E222CryptoPubkey pubkey, const void * digest, E222CryptoSig sig, int * result ) {
+	Error * e = NULL;
+
+	/* Sanity checks */
+	if ( pubkey.key == NULL ) {
+		e = error_newc( "Uninitialised public key supplied" );
+		goto badparm;
+	}
+	if ( digest == NULL ) {
+		e = error_newc( "Null digest supplied" );
+		goto badparm;
+	}
+	if ( sig.sig == NULL ) {
+		e = error_newc( "Uninitialised signature supplied" );
+		goto badparm;
+	}
+	if ( result == NULL ) {
+		e = error_newc( "Null result location pointer supplied" );
+		goto badparm;
+	}
+
+	/* Verify */
+	int rc = ECDSA_do_verify( digest, E222CRYPTO_DGSTSIZE, sig.sig, pubkey.key );
+	if ( rc == -1 ) {
+		e = crypto_error( "Signature verification error" );
+	} else {
+		*result = rc;
+	}
+
+badparm:
+	return e;
+}
+
+void e222crypto_sig_del( E222CryptoSig sig ) {
+	if ( sig.sig != NULL ) {
+		ECDSA_SIG_free( sig.sig );
+	}
+}
