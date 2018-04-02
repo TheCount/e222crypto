@@ -1,6 +1,7 @@
 #ifndef E222CRYPTO_H_
 #define E222CRYPTO_H_
 
+#include<openssl/bn.h>
 #include<openssl/ec.h>
 
 #include"errors/errors.h"
@@ -22,6 +23,8 @@
  */
 typedef struct {
 	EC_KEY * key;
+	BIGNUM * kinv;
+	BIGNUM * rp;
 } E222CryptoPrivkey;
 
 /**

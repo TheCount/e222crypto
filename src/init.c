@@ -60,5 +60,6 @@ void e222crypto_fini( void ) {
 	e222crypto_rand_fini();
 	EVP_cleanup();
 	ERR_free_strings();
+	CRYPTO_cleanup_all_ex_data();
 	e222crypto_threads_fini();
 }

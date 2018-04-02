@@ -2,6 +2,7 @@
 
 #include<openssl/bn.h>
 #include<openssl/ec.h>
+#include<openssl/ecdsa.h>
 
 #include"private.h"
 
@@ -303,9 +304,19 @@ Error * e222crypto_privkey_generate( E222CryptoPrivkey * privkey ) {
 		goto nogen;
 	}
 
+	/* Precompute signature parts */
+	privkey->kinv = NULL;
+	privkey->rp = NULL;
+	rc = ECDSA_sign_setup( key, bnctx, &privkey->kinv, &privkey->rp );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to setup signature parts" );
+		goto nosig;
+	}
+
 	privkey->key = key;
 	return NULL;
 
+nosig:
 nogen:
 nogroup:
 	EC_KEY_free( key );
@@ -317,6 +328,12 @@ badparm:
 void e222crypto_privkey_del( E222CryptoPrivkey privkey ) {
 	if ( privkey.key != NULL ) {
 		EC_KEY_free( privkey.key );
+	}
+	if ( privkey.kinv != NULL ) {
+		BN_clear_free( privkey.kinv );
+	}
+	if ( privkey.rp != NULL ) {
+		BN_clear_free( privkey.rp );
 	}
 }
 
@@ -428,9 +445,19 @@ Error * e222crypto_privkey_in( E222CryptoPrivkey * privkey, const void * buf ) {
 		goto keyerr;
 	}
 
+	/* Precompute signature parts */
+	privkey->kinv = NULL;
+	privkey->rp = NULL;
+	rc = ECDSA_sign_setup( key, bnctx, &privkey->kinv, &privkey->rp );
+	if ( rc != 1 ) {
+		e = crypto_error( "Unable to setup signature parts" );
+		goto nosig;
+	}
+
 	privkey->key = key;
 	goto success;
 
+nosig:
 keyerr:
 	EC_KEY_free( key );
 nokey:
