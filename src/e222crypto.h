@@ -17,6 +17,11 @@
 #define E222CRYPTO_PUBSIZE 28
 
 /**
+ * Digest size in bytes.
+ */
+#define E222CRYPTO_DGSTSIZE 28
+
+/**
  * Private key.
  *
  * Fields are private to the implementation.
@@ -171,5 +176,17 @@ Error * e222crypto_pubkey_out( E222CryptoPubkey pubkey, void * buf );
  * 	On error, a pointer to an error is returned.
  */
 Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf );
+
+/**
+ * Digests a message.
+ *
+ * @param msglen Message length in bytes.
+ * @param msg Pointer to message.
+ * @param dgst Pointer to location to store the #E222CRYPTO_DGSTSIZE bytes of digest.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_digest( size_t msglen, const void * msg, void * dgst );
 
 #endif
