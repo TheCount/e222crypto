@@ -371,18 +371,7 @@ Error * e222crypto_privkey_out( E222CryptoPrivkey privkey, void * buf ) {
 	}
 
 	/* Serialise */
-	const BIGNUM * priv = EC_KEY_get0_private_key( privkey.key );
-	if ( priv == NULL ) {
-		e = error_newc( "Unable to retrieve private key; this should not happen" );
-		goto error;
-	}
-	int numbytes = BN_num_bytes( priv );
-	if ( ( numbytes > E222CRYPTO_PRIVSIZE ) || ( numbytes <= 0 ) ) {
-		e = error_newf( "Private key has wrong size: %d; this should not happen", numbytes );
-		goto error;
-	}
-	memset( buf, '\0', E222CRYPTO_PRIVSIZE - numbytes );
-	BN_bn2bin( priv, buf + E222CRYPTO_PRIVSIZE - numbytes );
+	e = bn_out( EC_KEY_get0_private_key( privkey.key ), E222CRYPTO_PRIVSIZE, buf );
 
 error:
 	return e;

@@ -97,4 +97,33 @@ static inline Error * crypto_error( const char * msg ) {
 	}
 }
 
+/**
+ * Serialises a bignum up to the given size.
+ *
+ * @param bn Pointer to bignum.
+ * @param maxsize Maximum size of serialised form in bytes.
+ * @param buf Buffer to serialise to.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+static inline Error * bn_out( const BIGNUM * bn, size_t maxsize, void * buf ) {
+	Error * e = NULL;
+
+	if ( bn == NULL ) {
+		e = error_newc( "Null bignum; this should not happen" );
+		goto err;
+	}
+	int numbytes = BN_num_bytes( bn );
+	if ( ( numbytes <= 0 ) || ( ( size_t ) numbytes > maxsize ) ) {
+		e = error_newf( "Bad bignum size: %d; this should not happen", numbytes );
+		goto err;
+	}
+	memset( buf, '\0', maxsize - numbytes );
+	BN_bn2bin( bn, buf + maxsize - numbytes );
+
+err:
+	return e;
+}
+
 #endif
