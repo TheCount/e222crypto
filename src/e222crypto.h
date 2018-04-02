@@ -265,4 +265,16 @@ Error * e222crypto_sig_out( E222CryptoSig sig, void * buf );
  */
 Error * e222crypto_sig_in( E222CryptoSig * sig, const void * buf );
 
+/**
+ * Produces secure random bytes.
+ *
+ * @param n Number of bytes to be produces.
+ * @param buf Pointer to buffer to place random bytes in.
+ * 	Must be able to hold at least @c n bytes.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_rand( size_t n, void * buf );
+
 #endif
