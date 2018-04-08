@@ -31,3 +31,8 @@ target_link_libraries( e222crypto_static ${E222CRYPTO_LIB_LINK} )
 set_target_properties( e222crypto_static PROPERTIES OUTPUT_NAME ${E222CRYPTO_LIB_STATIC} )
 
 add_subdirectory( tinycthread )
+
+# Install
+install( TARGETS e222crypto e222crypto_static DESTINATION ${PKGCONFIG_LIBDIR} )
+install( FILES "e222crypto.h" DESTINATION "${PKGCONFIG_INCLUDEDIR}/${PROJECT_NAME}" )
+install( FILES "errors/errors.h" DESTINATION "${PKGCONFIG_INCLUDEDIR}/${PROJECT_NAME}/errors" )
