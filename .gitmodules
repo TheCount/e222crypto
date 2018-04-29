@@ -1,6 +1,6 @@
 [submodule "src/tinycthread"]
 	path = src/tinycthread
-	url = https://github.com/tinycthread/tinycthread.git
+	url = https://github.com/TheCount/tinycthread.git
 [submodule "src/KeccakCodePackage"]
 	path = src/KeccakCodePackage
 	url = https://github.com/gvanas/KeccakCodePackage.git
