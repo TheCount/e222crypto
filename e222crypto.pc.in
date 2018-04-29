@@ -6,7 +6,7 @@ libdir=${prefix}/@PKGCONFIG_LIBDIR@
 Name: @PKGCONFIG_NAME@
 Description: @PKGCONFIG_DESC@
 Version: @PKGCONFIG_VERSION@
-Requires:
+Requires: @PKGCONFIG_REQUIRES@
 Requires.private: @PKGCONFIG_REQUIRES_PRIVATE@
 Cflags: -I${includedir}
 Cflags.private:

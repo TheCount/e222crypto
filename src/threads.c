@@ -1,3 +1,4 @@
+#include<errors.h>
 #include<stdatomic.h>
 #include<stdlib.h>
 #include<thread.h>
@@ -28,8 +29,6 @@ struct CRYPTO_dynlock_value {
 };
 
 #include<openssl/crypto.h>
-
-#include"errors/errors.h"
 
 /**
  * Number of static locks.

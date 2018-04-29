@@ -1,9 +1,8 @@
 #include<assert.h>
+#include<errors.h>
 
 #include"e222crypto.h"
 #include"error.h"
-
-#include"errors/errors.h"
 
 int main( void ) {
 	Error * e = e222crypto_init( NULL );

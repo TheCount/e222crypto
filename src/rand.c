@@ -1,10 +1,9 @@
+#include<errors.h>
 #include<limits.h>
 
 #include<openssl/rand.h>
 
 #include"private.h"
-
-#include"errors/errors.h"
 
 /**
  * Required entropy in bytes.

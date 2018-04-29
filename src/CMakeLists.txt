@@ -18,6 +18,7 @@ set( E222CRYPTO_LIB_LINK
 )
 include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}
+	${ERRORS_INCLUDE_DIRS}
 )
 link_directories(
 	${CRYPTO_LIBRARY_DIRS}
@@ -35,4 +36,3 @@ add_subdirectory( tinycthread )
 # Install
 install( TARGETS e222crypto e222crypto_static DESTINATION ${PKGCONFIG_LIBDIR} )
 install( FILES "e222crypto.h" DESTINATION "${PKGCONFIG_INCLUDEDIR}/${PROJECT_NAME}" )
-install( FILES "errors/errors.h" DESTINATION "${PKGCONFIG_INCLUDEDIR}/${PROJECT_NAME}/errors" )

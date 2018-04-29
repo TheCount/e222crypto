@@ -1,3 +1,4 @@
+#include<errors.h>
 #include<string.h>
 
 #include<openssl/bn.h>
@@ -5,8 +6,6 @@
 #include<openssl/ecdsa.h>
 
 #include"private.h"
-
-#include"errors/errors.h"
 
 /**
  * Big number context.

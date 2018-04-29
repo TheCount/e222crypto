@@ -1,6 +1,5 @@
+#include<errors.h>
 #include<stddef.h>
-
-#include"errors/errors.h"
 
 #include"KeccakCodePackage/Standalone/CompactFIPS202/C/Keccak-more-compact.c"
 

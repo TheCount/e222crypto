@@ -1,10 +1,9 @@
 #include<assert.h>
+#include<errors.h>
 
 #include"e222crypto.h"
 #include"error.h"
 #include"init.h"
-
-#include"errors/errors.h"
 
 static void test_privcmpfail( E222CryptoPrivkey privkey1, E222CryptoPrivkey privkey2, int * result ) {
 	Error * e = e222crypto_privkey_cmp( privkey1, privkey2, result );

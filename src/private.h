@@ -1,11 +1,11 @@
 #ifndef E222CRYPTO_PRIVATE_H_
 #define E222CRYPTO_PRIVATE_H_
 
+#include<errors.h>
+
 #include<openssl/err.h>
 
 #include"e222crypto.h"
-
-#include"errors/errors.h"
 
 /**
  * @name Curve parameters

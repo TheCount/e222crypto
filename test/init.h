@@ -2,11 +2,10 @@
 #define E222CRYPTO_TEST_INIT_H_
 
 #include<assert.h>
+#include<errors.h>
 #include<stddef.h>
 
 #include"e222crypto.h"
-
-#include"errors/errors.h"
 
 static inline void init( void ) {
 #ifdef RANDOM_SOURCE

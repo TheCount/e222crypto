@@ -1,10 +1,9 @@
 #include<assert.h>
+#include<errors.h>
 
 #include"e222crypto.h"
 #include"error.h"
 #include"init.h"
-
-#include"errors/errors.h"
 
 int main( void ) {
 	init();

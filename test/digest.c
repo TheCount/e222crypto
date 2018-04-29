@@ -1,13 +1,12 @@
 #include<assert.h>
 #include<errno.h>
+#include<errors.h>
 #include<stdlib.h>
 #include<string.h>
 
 #include"e222crypto.h"
 #include"error.h"
 #include"init.h"
-
-#include"errors/errors.h"
 
 /**
  * Test message type.

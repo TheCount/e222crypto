@@ -15,6 +15,7 @@ set( LIBE222CRYPTO_VERSION "${LIBE222CRYPTO_SOVERSION}.${LIBE222CRYPTO_MINOR}.${
 # Dependencies
 find_package( PkgConfig REQUIRED )
 pkg_search_module( CRYPTO REQUIRED libcrypto )
+pkg_search_module( ERRORS REQUIRED errors )
 
 # pkg-config
 include( GNUInstallDirs )
@@ -25,6 +26,7 @@ set( PKGCONFIG_LIBDIR "${CMAKE_INSTALL_LIBDIR}" )
 set( PKGCONFIG_NAME "${PROJECT_NAME}" )
 set( PKGCONFIG_DESC "E-222" )
 set( PKGCONFIG_VERSION "${E222CRYPTO_VERSION}" )
+set( PKGCONFIG_REQUIRES "errors" )
 set( PKGCONFIG_REQUIRES_PRIVATE "libcrypto" )
 configure_file( "${CMAKE_CURRENT_SOURCE_DIR}/${PKGCONFIG_NAME}.pc.in" "${CMAKE_CURRENT_BINARY_DIR}/${PKGCONFIG_NAME}.pc" @ONLY )
 set( PKGCONFIG_DIR "${PKGCONFIG_LIBDIR}/pkgconfig" )

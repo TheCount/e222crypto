@@ -1,9 +1,9 @@
+#include<errors.h>
+
 #include<openssl/err.h>
 #include<openssl/evp.h>
 
 #include"private.h"
-
-#include"errors/errors.h"
 
 /**
  * Whether the library has been initialised before.

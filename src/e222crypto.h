@@ -1,11 +1,11 @@
 #ifndef E222CRYPTO_H_
 #define E222CRYPTO_H_
 
+#include<errors.h>
+
 #include<openssl/bn.h>
 #include<openssl/ec.h>
 #include<openssl/ecdsa.h>
-
-#include"errors/errors.h"
 
 /**
  * Size of serialised private key, in bytes.
