@@ -2,11 +2,11 @@
 #include<limits.h>
 #include<stdlib.h>
 
-#include"KeccakHash.c"
-#include"KeccakP-1600-reference.c"
-#include"KeccakSpongeWidth1600.c"
+#include"keccak/KeccakHash.c"
+#include"keccak/KeccakP-1600-reference.c"
+#include"keccak/KeccakSpongeWidth1600.c"
 
-#include"KeccakCodePackage/Standalone/CompactFIPS202/C/Keccak-more-compact.c"
+#include"keccak/Keccak-more-compact.c"
 
 /**
  * Digest state.

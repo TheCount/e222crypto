@@ -2,5 +2,5 @@
 	path = src/tinycthread
 	url = https://github.com/TheCount/tinycthread.git
 [submodule "src/KeccakCodePackage"]
-	path = src/KeccakCodePackage
+	path = src/keccak/KeccakCodePackage
 	url = https://github.com/gvanas/KeccakCodePackage.git
