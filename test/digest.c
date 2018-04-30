@@ -80,7 +80,67 @@ static size_t to_bin( const struct TestMessage * testmsg, char ** msg, char * ou
 	return binlen;
 }
 
-static void assert_digest( const struct TestMessage * testmsg ) {
+static void assert_digest_state( void ) {
+	/* new */
+	E222CryptoDigestState * state;
+	Error * e = e222crypto_digest_new( NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_new( &state );
+	assert( e == NULL );
+
+	/* init */
+	e = e222crypto_digest_init( NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_init( state );
+	assert( e == NULL );
+
+	/* Update */
+	e = e222crypto_digest_update( NULL, 0, NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_update( state, 0, NULL );
+	assert( e == NULL );
+	e = e222crypto_digest_update( NULL, 1, NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_update( state, 1, NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_update( NULL, 0, &state );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_update( state, 0, &state );
+	assert( e == NULL );
+	e = e222crypto_digest_update( NULL, 1, &state );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_update( state, 1, &state );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, SIZE_MAX / 7, &state );
+	assert( e != NULL );
+	error_del( e );
+
+	/* fini */
+	char out[E222CRYPTO_DGSTSIZE];
+	e = e222crypto_digest_fini( NULL, NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_fini( state, NULL );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_fini( NULL, out );
+	assert( e != NULL );
+	error_del( e );
+	e = e222crypto_digest_fini( state, out );
+	assert( e == NULL );
+
+	/* del */
+	e222crypto_digest_del( state );
+}
+
+static void assert_digest_simple( const struct TestMessage * testmsg ) {
 	size_t msglen;
 	char * msg;
 	char outexpect[E222CRYPTO_DGSTSIZE];
@@ -93,9 +153,71 @@ static void assert_digest( const struct TestMessage * testmsg ) {
 	free( msg );
 }
 
+static void assert_digest_complex( const struct TestMessage * testmsg ) {
+	char out[E222CRYPTO_DGSTSIZE];
+	int rc;
+
+	/* Obtain digest state, message, and expected digest */
+	char * msg;
+	char outexpect[E222CRYPTO_DGSTSIZE];
+	size_t msglen = to_bin( testmsg, &msg, outexpect );
+	E222CryptoDigestState * state;
+	Error * e = e222crypto_digest_new( &state );
+	assert( e == NULL );
+
+	/* Digest in one piece */
+	e = e222crypto_digest_init( state );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, msglen, msg );
+	assert( e == NULL );
+	e = e222crypto_digest_fini( state, out );
+	assert( e == NULL );
+	rc = memcmp( out, outexpect, E222CRYPTO_DGSTSIZE );
+	assert( rc == 0 );
+
+	/* Digest with null updates */
+	e = e222crypto_digest_init( state );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, 0, NULL );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, msglen, msg );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, 0, NULL );
+	assert( e == NULL );
+	e = e222crypto_digest_fini( state, out );
+	assert( e == NULL );
+	rc = memcmp( out, outexpect, E222CRYPTO_DGSTSIZE );
+	assert( rc == 0 );
+
+	/* Digest in two pieces */
+	e = e222crypto_digest_init( state );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, msglen / 2, msg );
+	assert( e == NULL );
+	e = e222crypto_digest_update( state, msglen - msglen / 2, msg + msglen / 2 );
+	assert( e == NULL );
+	e = e222crypto_digest_fini( state, out );
+	assert( e == NULL );
+	rc = memcmp( out, outexpect, E222CRYPTO_DGSTSIZE );
+	assert( rc == 0 );
+
+	/* Cleanup */
+	e222crypto_digest_del( state );
+	free( msg );
+}
+
+static void assert_digest( const struct TestMessage * testmsg ) {
+	assert_digest_simple( testmsg );
+	assert_digest_complex( testmsg );
+}
+
 int main( void ) {
 	init();
 
+	/* Some generic digest state tests */
+	assert_digest_state();
+
+	/* Run some actual digests */
 	for ( const struct TestMessage * testmsg = TEST_MSGS; testmsg->in != NULL; ++testmsg ) {
 		assert_digest( testmsg );
 	}

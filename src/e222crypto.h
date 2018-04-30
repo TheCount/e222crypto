@@ -48,6 +48,11 @@ typedef struct {
 } E222CryptoPubkey;
 
 /**
+ * Digest state.
+ */
+typedef struct E222CryptoDigestState E222CryptoDigestState;
+
+/**
  * Signature.
  *
  * Fields are private to the implementation.
@@ -195,6 +200,9 @@ Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf );
 /**
  * Digests a message.
  *
+ * This functions digests a message in one go.
+ * For piecewise digesting, use #e222crypto_digest_update().
+ *
  * @param msglen Message length in bytes.
  * @param msg Pointer to message.
  * @param dgst Pointer to location to store the #E222CRYPTO_DGSTSIZE bytes of digest.
@@ -203,6 +211,70 @@ Error * e222crypto_pubkey_in( E222CryptoPubkey * pubkey, const void * buf );
  * 	On error, a pointer to an error is returned.
  */
 Error * e222crypto_digest( size_t msglen, const void * msg, void * dgst );
+
+/**
+ * Creates a new digest state.
+ *
+ * The created digest state must be initialised with
+ * #e222crypto_digest_init().
+ * Then, it can be fed a message piecewise with
+ * #e222crypto_digest_update().
+ * The actual digest can then be obtained with
+ * #e222crypto_digest_fini().
+ *
+ * This sequence can be repeated multiple times.
+ * Once a digest state is no longer needed,
+ * it can be destroyed with #e222crypto_digest_del().
+ *
+ * @param state Pointer to a location where a pointer
+ * 	to a digest state can be stored.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_digest_new( E222CryptoDigestState ** state );
+
+/**
+ * Destroys a digest state.
+ *
+ * @param state Pointer to digest state.
+ */
+void e222crypto_digest_del( E222CryptoDigestState * state );
+
+/**
+ * Initialises a digest state.
+ *
+ * @param state Pointer to digest state.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_digest_init( E222CryptoDigestState * state );
+
+/**
+ * Updates a digest state.
+ *
+ * @param state Pointer to digest state.
+ * @param piecelen Length of message piece in bytes.
+ * @param piece Pointer to message piece.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ * 	If an error occurs, you can attempt to reinitialise the state
+ * 	with #e222crypto_digest_init().
+ */
+Error * e222crypto_digest_update( E222CryptoDigestState * state, size_t piecelen, const void * piece );
+
+/**
+ * Finalises a piecewise digest.
+ *
+ * @param state Pointer to digest state.
+ * @param dgst Pointer to location to store the #E222CRYPTO_DGSTSIZE bytes of digest.
+ *
+ * @return On success, a null pointer is returned.\n
+ * 	On error, a pointer to an error is returned.
+ */
+Error * e222crypto_digest_fini( E222CryptoDigestState * state, void * dgst );
 
 /**
  * Signs a digest using a private key.
